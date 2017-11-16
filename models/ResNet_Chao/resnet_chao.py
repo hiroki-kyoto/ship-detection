@@ -48,6 +48,7 @@ class ResNetLoader:
                     model_fn = res_net_model,
                     model_dir = model_path
             )
+            print self.classifier
             self.ready = True
         
         self.im_w = 48 # width

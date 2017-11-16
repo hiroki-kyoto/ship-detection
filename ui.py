@@ -11,19 +11,19 @@ import time
 import sys
 import os
 
-# ssd-vgg-300
-import ssd
+# SSD
+from models.SSD import ssd
 
 # alexnet
-from AlexNet import alexnet
-from ResNet_Chao import resnet_chao
-from ResNet_Cui import resnet_cui
+from models.AlexNet import alexnet
+from models.ResNet_Chao import resnet_chao
+from models.ResNet_Cui import resnet_cui
 
 # preprocessing
-from enhance import *
-from median_blur import *
-from dehaze import *
-from segmentation import *
+from preprocess.enhance import *
+from preprocess.median_blur import *
+from preprocess.dehaze import *
+from preprocess.segmentation import *
 
 def resize_with_ratio_held(im, w, h):
     ''' resize an image to at maxium [wxh],
@@ -219,11 +219,12 @@ def _main_():
             msg.showerror('配置错误','请先设置要导入哪种检测模型！')
         elif detector_model_chooser.get()=='SSD-Leng':
             path = fd.askdirectory()
-            info = '当前使用检测模型为:' + detector_model_chooser.get()
-            status_bar.config(text = info + ', 正在读取检测模型...')
-            root.update()
             # load SSD model
             if (type(path)==type('Latin') or type(path)==type(unicode('中文', 'utf8'))) and os.path.isdir(path):
+                info = '当前使用检测模型为:' + detector_model_chooser.get()
+                status_bar.config(text = info + ', 正在读取检测模型...')
+                root.update()
+
                 if '_detector_loader' in globals() and _detector_loader.ready:
                     _detector_loader.free()
                 _detector_loader = ssd.SSDLoader(path)
@@ -255,13 +256,14 @@ def _main_():
             msg.showerror('配置错误','请先设置要导入哪种识别模型！')
         else:
             path = fd.askdirectory()
-            info = '当前使用识别模型为:' + classifier_model_chooser.get()
-            status_bar.config(text = info + ', 正在读取识别模型...')
-            root.update()
             # load AlexNet model
             if (type(path)==type('Latin') or \
                     type(path)==type(unicode('中文','utf8'))) and \
                     os.path.isdir(path):
+                info = '当前使用识别模型为:' + classifier_model_chooser.get()
+                status_bar.config(text = info + ', 正在读取识别模型...')
+                root.update()
+
                 if '_classifier_loader' in globals() and \
                         _classifier_loader.ready:
                     _classifier_loader.free()
@@ -277,7 +279,7 @@ def _main_():
                     status_bar.config(text = '识别模型导入成功！')
                 else:
                     status_bar.config(text = '识别模型导入失败！')
-                root.update()            
+                root.update()
 
     load_classifier_model_btn = tk.Button(
             root,

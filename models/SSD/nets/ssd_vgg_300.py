@@ -48,6 +48,16 @@ motivating the use of special padding layer for controlling these side-effects.
 
 @@ssd_vgg_300
 """
+
+import sys
+import os
+
+sys.path.append(
+        os.path.abspath(
+            os.path.dirname(
+                __file__
+            ) + '/' + '..'))
+
 import math
 from collections import namedtuple
 
@@ -55,8 +65,8 @@ import numpy as np
 import tensorflow as tf
 
 import tf_extended as tfe
-from nets import custom_layers
-from nets import ssd_common
+import custom_layers
+import ssd_common
 
 slim = tf.contrib.slim
 

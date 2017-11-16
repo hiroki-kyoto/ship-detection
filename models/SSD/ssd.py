@@ -16,8 +16,6 @@ from PIL import Image
 
 import sys
 
-
-from nets import ssd_vgg_300
 from nets import ssd_vgg_300, ssd_common, np_methods
 from preprocessing import ssd_vgg_preprocessing
 import visualization
