@@ -8,8 +8,10 @@ ships over seas.
 
 ATTENTION:
 
-		This software is only used under non-commercial and non-military occasions.
+		This software is only used under non-commercial 
+		and non-military occasions.
 
-		All pratical data is removed from this project, you need to find your own data source for testing!
+		All pratical data is removed from this project, 
+		you need to find your own data source for testing!
 
 Happy Hacking!
