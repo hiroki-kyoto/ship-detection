@@ -1,2 +1,2 @@
-# ship-detection-with-deep-learning
-Ship detection with deep learning framework
+Using GTK 2.0+ and Tkinter V2.0+
+
