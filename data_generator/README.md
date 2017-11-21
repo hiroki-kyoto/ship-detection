@@ -13,8 +13,8 @@ those two args are what size you want to resize your
 raw images to be.
 
 4. If you're unfortunately running without permission
-to write to path like /ships/, please try to change the
-directory specification in make_dataset.py and 
+to write to path like /tmp/ships/, please try to change 
+the directory specification in make_dataset.py and 
 datasets/ship.py to ensure the dirs are writeable.
 
 Happy hacking!

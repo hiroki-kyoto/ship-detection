@@ -2,7 +2,7 @@
 import os
 
 class ScanFile(object):
-    def __init__(self, directory, prefix=None, postfix=None):
+    def __init__(self, directory, prefix=[], postfix=None):
         self.directory = directory
         self.prefix = prefix
         self.postfix = postfix
@@ -16,15 +16,22 @@ class ScanFile(object):
             filenames is a list of the names of the non-directory files in dirpath.
             '''
             for special_file in filenames:
-                if self.postfix:
-                    if special_file.endswith(self.postfix):
-                        files_list.append(os.path.join(dirpath, special_file))
-                elif self.prefix:
-                    if special_file.startswith(self.prefix):
-                        files_list.append(os.path.join(dirpath, special_file))
-                else:
-                    files_list.append(os.path.join(dirpath, special_file))
-
+                for _postfix in self.postfix:
+                    if special_file.endswith(_postfix):
+                        files_list.append(
+                                os.path.join(
+                                    dirpath, 
+                                    special_file
+                                )
+                        )
+                for _prefix in self.prefix:
+                    if special_file.startswith(_prefix):
+                        files_list.append(
+                                os.path.join(
+                                    dirpath,
+                                    special_file
+                                )
+                        )
         return files_list
 
     def scan_subdir(self):
@@ -39,8 +46,8 @@ class ScanFile(object):
 
 ''' usage:
 if __name__ == "__main__":
-    dir = r"/home/hiroki/ships/raw_data/"
-    scan = ScanFile(dir, postfix=".*")
+    dir = r"/tmp/ships/raw_data/"
+    scan = ScanFile(dir, postfix=['.jpg',".*"])
     subdirs = scan.scan_subdir()
     files = scan.scan_files()
 
