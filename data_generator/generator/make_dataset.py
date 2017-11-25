@@ -195,18 +195,25 @@ def make_std_mnist_dataset(
 def main():
     if len(sys.argv)==1:
         print 'WARNNING: using default configuration!'
+        print 'default settings are:'
+        print '\traw data:\t../raw_data/'
+        print '\timage width:\t256'
+        print '\timage height:\t256'
+        print '\ttest/all:\t0.2'
+        print '\toutput data:\t/tmp/ships/'
         make_std_mnist_dataset()
-    elif len(sys.argv)==5:
+    elif len(sys.argv)==6:
         raw_path = sys.argv[1]
         im_width = sys.argv[2]
         im_height = sys.argv[3]
         im_ratio = sys.argv[4]
+        out_path = sys.argv[5]
         make_std_mnist_dataset(
                 raw_path, 
-                _, 
-                im_width, 
-                im_height,
-                im_ratio
+                out_path, 
+                int(im_width), 
+                int(im_height),
+                float(im_ratio)
         )
     else:
         print 'help:'
@@ -214,6 +221,7 @@ def main():
         print '\t[arg#1] : the width of image to resize'
         print '\t[arg#2] : the height of image to resize'
         print '\t[arg#3] : the ratio of test/all'
+        print '\t[arg#4] : path for output data'
         return
 
 
