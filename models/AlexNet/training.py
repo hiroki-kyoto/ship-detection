@@ -3,7 +3,7 @@ import os
 import numpy as np
 import tensorflow as tf
 import input_data
-import modelA
+import model
 
 N_CLASSES = 5
 IMG_W = 227
@@ -23,10 +23,14 @@ train_batch,train_label_batch=input_data.get_batches(train,
                                 IMG_H,
                                 BATCH_SIZE,
                                 CAPACITY)
-train_logits = modelA.inference(train_batch, BATCH_SIZE, N_CLASSES)
-train_loss = modelA.losses(train_logits, train_label_batch)
-train_op = modelA.trainning(train_loss, learning_rate)
-train__acc = modelA.evaluation(train_logits, train_label_batch)
+train_logits = model.inferencei4train(
+        train_batch, 
+        BATCH_SIZE, 
+        N_CLASSES
+)
+train_loss = model.losses(train_logits, train_label_batch)
+train_op = model.trainning(train_loss, learning_rate)
+train__acc = model.evaluation(train_logits, train_label_batch)
 summary_op = tf.summary.merge_all()
 
 sess = tf.Session()

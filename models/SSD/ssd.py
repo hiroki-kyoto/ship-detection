@@ -118,7 +118,7 @@ class SSDLoader:
         for c in rclasses:
             objs.append(visualization.num2class(c))
         
-        return (result, objs)
+        return (result, objs, rbboxes)
 
     # use SSD detector to get bounding boxs
     def process_image(

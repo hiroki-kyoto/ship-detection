@@ -69,7 +69,8 @@ def bboxes_draw_on_img(img, classes, scores, bboxes, colors, thickness=2):
     shape = img.shape
     for i in range(bboxes.shape[0]):
         bbox = bboxes[i]
-        color = colors[classes[i]]
+#        color = colors[classes[i]]
+        color = [255, 0, 0]
         # Draw bounding box...
         p1 = (int(bbox[0] * shape[0]), int(bbox[1] * shape[1]))
         p2 = (int(bbox[2] * shape[0]), int(bbox[3] * shape[1]))

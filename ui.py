@@ -71,11 +71,15 @@ def _main_():
     h = 600 
 
     # initialization for global variables
-    _bg_im = None # background image on display
+    _bg_im = None # background image on display as tKPhoto
     _im_fn = None # selected image file name
     _res_im = None # processed image
+    _crop_ims = None # images cropped from original image
+    _crop_photos = None # tkPhoto objects for display
+    _bboxes = None # bounding boxes
     _detector_loader = None # detector loader
     _classifier_loader = None # classifier loader
+    _objs = None # the id for each detected object
 
     # canvas
     canvas = tk.Canvas(
@@ -104,12 +108,74 @@ def _main_():
             columnspan = 18
     )
 
-    def change_display():
+    def reset_display():
+        canvas.create_rectangle(0,0,w,h,fill='black')
+
+    def change_display(flag='full'):
         global _res_im
         global _bg_im
-        im = resize_with_ratio_held(_res_im, w, h)
-        _bg_im = ImageTk.PhotoImage(im)
-        canvas.create_image(w/2, h/2, image=_bg_im)
+        global _crop_ims
+        global _crop_photos
+        global _bboxes
+        global _objs
+
+        reset_display()
+
+        if flag=='full':
+            im = resize_with_ratio_held(_res_im, w, h)
+            _bg_im = ImageTk.PhotoImage(im)
+            canvas.create_image(w/2,h/2,image=_bg_im)
+        elif flag=='half':
+            im = resize_with_ratio_held(_res_im, w, h/2)
+            _bg_im = ImageTk.PhotoImage(im)
+            canvas.create_image(w/2, h/4, image=_bg_im)
+            # plot all cropped images on the below
+            _crop_photos = []
+            _n = len(_crop_ims)
+            _w,_h = im.size
+            _im = None # temp resized cropped image
+
+            xmargin = 8 # margin on axis x for each cropped image
+            ymargin = 32 # margin on axis y
+
+            for _i in xrange(_n):
+                _im = resize_with_ratio_held(
+                        _crop_ims[_i],
+                        int(1.0*w/_n) - xmargin,
+                        int(1.0*h/2) - ymargin
+                )
+                _crop_photos.append(ImageTk.PhotoImage(_im))
+
+                ox = int(1.0*w*(2*_i+1)/_n/2)
+                oy = int(1.0*h*3/4)
+                cx, cy = _im.size
+                
+                canvas.create_image(
+                        ox,
+                        oy,
+                        image=_crop_photos[-1]
+                )
+                
+                _x = int((_w*_bboxes[_i,1]+_w*_bboxes[_i,3])/2)
+                _y = int((_h*_bboxes[_i,0]+_h*_bboxes[_i,2])/2)
+                
+                canvas.create_line(
+                        _x+w/2-_w/2, _y+h/4-_h/2,
+                        ox, oy-cy/2,
+                        fill='red',
+                        arrow=tk.LAST,
+                        smooth=True
+                )
+                text_margin = 6
+                canvas.create_text(
+                        ox,
+                        oy + cy/2 + text_margin,
+                        fill = 'white',
+                        text = _objs[_i]
+                )
+        else:
+            raise NameError('unacceptable args:' + str(flag))
+        
         root.update()
 
     # task bar
@@ -149,11 +215,48 @@ def _main_():
             rowspan = 2,
             columnspan = 2
     )
+
+    # sorting the bounding boxes
+    # from left to right
+    # from up to down
+    def bbox_ahead_of(a, b):
+        if a[1]+a[3]<b[1]+b[3]: # a is left
+            return True
+        elif a[1]+a[3]==b[1]+b[3] and a[0]+a[2]<b[0]+b[2]:
+            return True
+        else:
+            return False
     
+    def bbox_swap(i, j): # corresponding object names too
+        global _bboxes
+        global _objs
+        _c = range(4)
+        _c[:] = _bboxes[i,:]
+        _bboxes[i,:] = _bboxes[j,:]
+        _bboxes[j,:] = _c[:]
+        _str = _objs[i]
+        _objs[i] = _objs[j]
+        _objs[j] = _str
+
+    def bbox_sort():
+        global _bboxes
+        _n = len(_bboxes)
+
+        for _i in xrange(_n):
+            for _j in xrange(_i+1,_n):
+                if bbox_ahead_of(_bboxes[_j],_bboxes[_i]):
+                    bbox_swap(_i, _j)
+            # inner selection loop over
+        # outer selection loop over
+        #print _bboxes
+
     # detect
     def detect():
         global _detector_loader
         global _res_im
+        global _crop_ims
+        global _bboxes
+        global _objs
 
         if '_res_im' not in globals():
             msg.showerror('操作流程错误','请先导入要检测的图片!')
@@ -162,9 +265,22 @@ def _main_():
             msg.showerror('操作流程错误','请先导入检测模型!')
             return
         status_bar.config(text='正在检测...')
-        (_res_im, objs) = _detector_loader.detect_with_image(_res_im)
-        change_display()
-        status_bar.config(text='检测完成:' + make_detect_report(objs))
+        # before chaning res_im, back it up for other uses
+        _im_org = _res_im
+        (_res_im, _objs, _bboxes) = _detector_loader.detect_with_image(_res_im)
+        _crop_ims = []
+        _w,_h = _res_im.size
+
+        # sort the bboxes
+        bbox_sort()
+
+        for _box in _bboxes:
+            x1,x2 = int(_w*_box[1]),int(_w*_box[3])
+            y1,y2 = int(_h*_box[0]),int(_h*_box[2])
+            _crop_ims.append(_im_org.crop((x1,y1,x2,y2)))
+
+        change_display('half')
+        status_bar.config(text='检测完成:' + make_detect_report(_objs))
         root.update()
 
     ship_detect_btn = tk.Button(

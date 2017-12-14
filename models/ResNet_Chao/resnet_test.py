@@ -6,7 +6,6 @@
 
 from resnet import *
 
-
 def main(unused_args):
   # load ship data.
   ship = tf.contrib.learn.datasets.DATASETS['ship']()
@@ -54,16 +53,30 @@ def main(unused_args):
       y=ship.test.labels.astype(np.int32),
       num_epochs=1,
       shuffle=False)
-  scores = classifier.evaluate(input_fn=test_input_fn)
-  print('Accuracy: {0:f}'.format(scores['accuracy']))
+  #scores = classifier.evaluate(input_fn=test_input_fn)
+  #print('Accuracy: {0:f}'.format(scores['accuracy']))
 
-  #res = classifier.predict(input_fn=test_input_fn)
+  res = classifier.predict(input_fn=test_input_fn)
   #label_id = 0
   #prob = 0.0
   #for i in res:
   #    label_id = i['class']
   #    prob = i['prob'][label_id]
   #print labels[label_id], prob
+
+  labels = ship.test.labels.astype(np.int32)
+  corrects = np.zeros([N_DIGITS])
+  totals = np.zeros([N_DIGITS])
+  inc = 0
+  for i in res:
+    label_id = i['class']
+    totals[labels[inc]] += 1
+    if label_id==labels[inc]:
+      corrects[label_id] += 1
+    inc += 1
+  print 'sample volume for each label:', totals
+  print 'test accuracy for each label:', corrects/(total+1e-5)
+
 
 if __name__ == '__main__':
   tf.app.run()
